@@ -84,7 +84,7 @@ export default CandleView
 
 interface ICandleProps {
     candleData: ICandle
-    margin: number
+    candleViewData: {max: number, min: number, margin: number}
 }
 
 const cssCandle = css`
