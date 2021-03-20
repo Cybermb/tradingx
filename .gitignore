@@ -4,6 +4,7 @@
 /node_modules
 /.pnp
 .pnp.js
+/src/.linaria_cache
 
 # testing
 /coverage
