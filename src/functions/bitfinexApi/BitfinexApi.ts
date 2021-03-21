@@ -2,12 +2,11 @@ import ICandle from "../../types/candleData"
 
 const url = 'https://try.readme.io/https://api-pub.bitfinex.com/v2/'
 
-const pathParams = 'candles/trade:1m:tXRPUSD/hist' // Change these based on relevant path params. /last for last candle
-
 /**
  * returns a list with candle data { timestamp, open, close, high, low, volume }
  */
-async function request(limit:number = 100): Promise<ICandle[]> {
+async function request(limit:number = 100, coin:'BTC'|'XRP' = 'XRP'): Promise<ICandle[]> {
+    const pathParams = `candles/trade:1m:t${coin}USD/hist` // Change these based on relevant path params. /last for last candle
     const queryParams = `limit=${limit}&sort=-1`
     try {
         const req = await fetch(`${url}/${pathParams}?${queryParams}`)
