@@ -29,12 +29,14 @@ export const cssCandleValues = css`
     border-left: 1px #555 solid;
     overflow: hidden;
     color: #eee;
+    font-size: 14px;
 `;
 export const cssGraphOverlay = css`
     width: 100%;
     height: 100%;
     position: absolute;
     z-index: 10;
+    cursor: crosshair;
 `;
 export const cssGraphCrossLineX = css`
     width: 100%;
@@ -55,7 +57,7 @@ export const cssGraphValueLabel = css`
     height: 20px;
     position: absolute;
     text-align: center;
-    z-index: 11;
+    z-index: 9;
     background-color: #555;
     opacity: 0.95;
 `
@@ -81,9 +83,28 @@ export const cssGraphTimeline = css`
     flex: 1;
 `
 
+export const cssGraphGrid = css`
+    position: absolute;
+    z-index: 0;
+    width: 100%;
+    height: 100%;
+`
+
+export const cssGraphGridLineX = css`
+    width: 100%;
+    position: absolute;
+    border-bottom: 1px solid #fff;
+    opacity: 0.05;
+`
+
+export const cssVerticalGridValues = css`
+    position: absolute;
+`
+
 export const cssGraphTimelineFiller = css`
     width: 80px;
     border-left: 1px #555 solid;
+    overflow: hidden;
 `
 
 export const cssSelect = css`

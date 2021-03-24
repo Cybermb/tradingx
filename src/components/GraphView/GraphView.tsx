@@ -10,6 +10,7 @@ interface IProps {
 }
 
 const GraphView = ({ data }: IProps) => {
+    const height = 500
     const [candleList, updateCandleList] = React.useState<ICandle[]>([])
     const [loading, toggleLoading] = React.useState(true)
     const [mouseYpos, setMouseYpos] = React.useState(0)
@@ -20,9 +21,11 @@ const GraphView = ({ data }: IProps) => {
         margin: 10,
     })
 
+    
+
     const updateDataTable = async () => {
         const candleList: ICandle[] = await getCoinCandles(100, "XRP")
-        const offset = 0.0005
+        const offset = 0.05
         const maxList = [...candleList.map((candle: ICandle) => {
             return candle.high
         })]
@@ -37,19 +40,17 @@ const GraphView = ({ data }: IProps) => {
             if (prev < next) return next
             return prev
         })
-        const maxWithOffset = max * offset + max
-        const minWithOffset = min - (min * offset < 0 ? 0 : min * offset) 
+        const marginOffset = (max - min) * offset
+        const maxWithOffset = max + marginOffset
+        const minWithOffset = min - marginOffset
         updateCandleList(candleList)
-        setCandleViewData({max, min, margin: max - min})
-        // setCandleViewData({max: maxWithOffset, min: minWithOffset, margin: max - min})
-        // console.log("max", maxWithOffset, "min", minWithOffset)
+        // setCandleViewData({max, min, margin: max - min})
+        setCandleViewData({max: maxWithOffset, min: (minWithOffset < 0 ? 0 : minWithOffset), margin: maxWithOffset - minWithOffset})
         console.log(candleViewData)
     }
 
-    const generateArray = ({max, min}: {min: number, max:number}) => {
-        return [...Array.from(Array(10).keys()).map((_null, index) => {
-            return Number((max - min) * index/10 + min).toFixed(4)
-        })]
+    const generateArray = (n: number) => {
+        return Array.from(Array(n).keys())
     }
 
     const handleMouseEvent = (e:any) => {
@@ -69,7 +70,7 @@ const GraphView = ({ data }: IProps) => {
 
     const calculateValueByPixels = () => {
         const { max, margin } = candleViewData
-        const value = max - (mouseYpos / 500) * margin
+        const value = max - (mouseYpos / height) * margin
         if (value < 1) return value.toFixed(5)
         else if (value < 10) return value.toFixed(4)
         else if (value < 100) return value.toFixed(3)
@@ -89,6 +90,27 @@ const GraphView = ({ data }: IProps) => {
         }
     }
 
+    const findInt = (n: number, d: number = 1): [number, number] => {
+        if (n % 1 === 0) return [n, d]
+        return findInt(n * 10, d * 10)
+    }
+
+    const gridLines = {
+        Xamount: Math.round(height/50),
+        Xinterval: findInt(candleViewData.margin),
+    }
+
+    const gridLinesValues = generateArray(gridLines.Xamount).map((_, index) => {
+        const [interval, divider] = gridLines.Xinterval
+        const { min } = candleViewData
+        return interval/gridLines.Xamount/divider*(index+1)+min
+    })
+
+    const gridLinePositions = generateArray(gridLines.Xamount).map((_, index) => {
+        const { min, margin } = candleViewData
+        return (gridLinesValues[index] - min) / margin * height
+    })
+
     const constValueProps = currentValueLineProps()
 
     if (candleList.length === 0) return <div className={styles.cssGraphWrapper}>
@@ -98,15 +120,25 @@ const GraphView = ({ data }: IProps) => {
     return (
         <>
             <div className={styles.cssGraphWrapper}>
-                <div className={styles.cssGraphOverlay} onMouseMove={updatePointerValue} onMouseOver={handleMouseEvent} onMouseOut={handleMouseEvent} />
                 <div id="GraphView" className={styles.cssGraphView}>
+                    <div className={styles.cssGraphOverlay} onMouseMove={updatePointerValue} onMouseOver={handleMouseEvent} onMouseOut={handleMouseEvent} />
+                    <div className={styles.cssGraphGrid}>
+                        {generateArray(gridLines.Xamount).map((_, index) => {
+                            return <div className={styles.cssGraphGridLineX} style={{bottom: gridLinePositions[index]-1}} />
+                        })}
+                    </div>
                     {candleList.map((candle, index) => {
                         return <Candle key={`candle${index}`} candleData={candle} candleViewData={candleViewData} />
                     })}
                 </div>
                 <div className={styles.cssCandleValues}>
-                    {generateArray(candleViewData).map((value, index) => {
+                    {/* {generateArray(candleViewData).map((value, index) => {
                         return <div key={`value${index}`}>{value}</div>
+                    })} */}
+                    {gridLinesValues.map((val, index) => {
+                        return <div className={styles.cssVerticalGridValues} style={{bottom: gridLinePositions[index]-9}}>
+                            {val}
+                        </div>
                     })}
                     <div className={styles.cssGraphValueLabel} style={{
                         bottom: constValueProps.bottom - 10,
@@ -127,7 +159,7 @@ const GraphView = ({ data }: IProps) => {
                 <div className={styles.cssGraphTimeline}>
                     Timeline (W.I.P)
                 </div>
-                <div className={styles.cssGraphTimelineFiller} />
+                <div className={styles.cssGraphTimelineFiller}>{candleViewData.margin}</div> 
             </div>
         </>
         

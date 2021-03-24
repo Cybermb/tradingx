@@ -30,18 +30,18 @@ const cssCandleWick = css`
 export const Candle = ({ candleData, candleViewData }: ICandleProps) => {
     const { open, close, high, low } = candleData;
     const { max, min } = candleViewData;
-    const heigth = 500;
+    const height = 500;
     const margin = (max - min);
     const pixelValue = margin / 500;
 
     const candleType = open <= close ? true : false; // green or red
     const candleColor = candleType ? "#0c0" : "#c00";
 
-    const candlePos = (low - min) / margin * heigth;
-    const candleHeight = (high - low) / margin * heigth;
+    const candlePos = (low - min) / margin * height;
+    const candleHeight = (high - low) / margin * height;
 
-    const candleBodyHeight = (open - close) / margin * (candleType ? -heigth : heigth);
-    const candleBodyPos = (candleType ? (high - close) : (high - open)) / margin * heigth;
+    const candleBodyHeight = (open - close) / margin * height * (candleType ? -1 : 1);
+    const candleBodyPos = (candleType ? (high - close) : (high - open)) / margin * height;
 
 
     return <div className={cssCandle} style={{
